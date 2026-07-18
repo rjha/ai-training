@@ -1,0 +1,13 @@
+{
+    "python-envs.pythonProjects": [
+        {
+            "path": ".",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+    "python.defaultInterpreterPath": "/Users/rjha/sw/pyvm/ai-training/bin/python3",
+    "python.analysis.extraPaths": [
+        "/Users/rjha/sw/pyvm/ai-training/lib/python3.13/site-packages"
+    ]
+}

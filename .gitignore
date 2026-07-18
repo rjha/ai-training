@@ -1,0 +1,13 @@
+.DS_Store 
+# Python bytecode and optimization
+__pycache__/
+*.py[cod]
+*$py.class
+
+# xapi stuff 
+xapi/target
+xapi/.helidon
+xapi/.vscode
+xapi/.keys 
+xapi/misc/psql/scandb-schema.sql
+
