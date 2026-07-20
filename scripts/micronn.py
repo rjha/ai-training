@@ -376,6 +376,50 @@ class DataTrainer:
         print(f"Weights successfully archived to persistent file: '{filepath}'")
 
 
+    def evaluate(self, data_loader: DataLoader, params: ModelParameters):
+        """
+        Evaluates the model's classification accuracy on the 20% test data partition.
+        """
+        # 1. Fetch the testing dataset
+        X_test, y_test = data_loader.get_test_data()
+        
+        if not X_test:
+            print("Test data is empty. Please verify your data split or partitioning.")
+            return
+
+        correct_predictions = 0
+        total_samples = len(X_test)
+        
+        print("\n" + "="*40)
+        print("Starting Model Evaluation on 20% Test Partition...")
+        print("="*40)
+
+        # 2. Iterate through the test dataset
+        for x_sample, y_target in zip(X_test, y_test):
+            # Run the forward pass with frozen weights (we don't calculate gradients here)
+            logit = self.forward(x_sample, params)
+            
+            # Apply Sigmoid to get probability (between 0 and 1)
+            prob = 1 / (1 + (-logit).exp())
+            
+            # Make a binary prediction (Threshold = 0.5)
+            prediction = 1 if prob.data >= 0.5 else 0
+            
+            # 3. Check if the prediction matches the target label
+            if prediction == y_target:
+                correct_predictions += 1
+                
+        # 4. Compute and display classification accuracy
+        accuracy = (correct_predictions / total_samples) * 100.0
+        
+        print(f"Evaluation Complete!")
+        print(f"Correct Predictions: {correct_predictions} out of {total_samples}")
+        print(f"Test Accuracy:       {accuracy:.2f}%")
+        print("="*40)
+        
+        return accuracy
+
+
 def main():
     print("main")
     file_name = '/Users/rjha/code/github/ai-training/data/uci/wine/red.csv'
@@ -389,36 +433,8 @@ def main():
     trainer = DataTrainer(learning_rate=0.05, epochs=500)
     trainer.train(data_loader, params) 
     trainer.save_weights(params)
-
-
-    """
-    # --- 1. CORE PARAMETER HELPERS (From microgpt.py) ---
-    # Each cell is initialized as a unique Value object with a random Gaussian weight
-    def matrix(num_rows, num_cols):
-        return [[Value(random.gauss(0, 0.5)) for _ in range(num_cols)] for _ in range(num_rows)]
-
-    # --- 2. LAYER PARAMETER INITIALIZATION ---
-
-    # Hidden Layer: Takes 2 inputs, outputs 4 hidden features
-    # Result: A 4x2 matrix of weights and 4 biases
-    w_hidden = matrix(4, 2)
-    b_hidden = [Value(0.0) for _ in range(4)]
-
-    # Output Layer: Takes the 4 hidden features, outputs 1 logit
-    # Result: A 1x4 matrix of weights and 1 bias
-    w_output = matrix(1, 4)
-    b_output = [Value(0.0)]
-
-    # --- 3. PARAMETER GROUPING FOR THE OPTIMIZER ---
-    # We flatten all individual Value objects into a single list so the 
-    # Adam optimizer can easily iterate through and update them.
-    params = [p for layer in [w_hidden, w_output] for row in layer for p in row] + b_hidden + b_output
-
-    print(f"Total network parameters initialized: {len(params)}")
-    """
-
-
-
+    trainer.evaluate(data_loader, params)
+    
 
 if __name__ == "__main__":
     main()
