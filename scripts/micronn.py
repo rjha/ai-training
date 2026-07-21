@@ -105,28 +105,6 @@ def linear(x, w):
     return output
 
 
-def calculate_bce_loss2(logit, target_label):
-    """
-    Computes the Binary Cross-Entropy loss for a single sample.
-    logit: A Value object from the forward pass
-    target_label: 0 or 1 (integer)
-    """
-    # 1. Map logit to a 0-1 probability using your Value engine's .exp()
-    # Sigmoid formula: 1 / (1 + exp(-logit))
-    prob = 1 / (1 + (-logit).exp())
-    
-    # 2. Compute BCE loss: -[y * log(p) + (1 - y) * log(1 - p)]
-    # Using a tiny epsilon (1e-15) prevents log(0) calculation errors
-    eps = 1e-15
-    if target_label == 1:
-        # If target is 1, we want prob to be close to 1
-        loss = -(prob + eps).log()
-    else:
-        # If target is 0, we want (1 - prob) to be close to 1
-        loss = -(1 - prob + eps).log()
-        
-    return loss
-
 def calculate_bce_loss(logit, target_label):
     """
     Computes Binary Cross-Entropy loss while strictly maintaining 
